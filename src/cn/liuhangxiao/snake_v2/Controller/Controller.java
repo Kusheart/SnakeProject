@@ -16,7 +16,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * 2022-2-21
  * 控制器<br>
  * 控制地形(Ground), 蛇(Snake), 食物(Food)<br>
  * 负责游戏的逻辑<BR>
