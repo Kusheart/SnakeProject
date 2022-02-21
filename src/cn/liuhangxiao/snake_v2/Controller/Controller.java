@@ -16,85 +16,43 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * 2022-2-21
  * 控制器<br>
  * 控制地形(Ground), 蛇(Snake), 食物(Food)<br>
  * 负责游戏的逻辑<BR>
  * 处理按键事件<BR>
+ * @author 刘航霄
  */
 public class Controller extends KeyAdapter implements SnakeListener {
 
     /* 静态变量 */
-    //地形
-    private Ground ground;
-    //蛇
-    private Snake snake;
-
-    //食物
-    private Food food;
-
-    //显示
-    private GamePanel gamePanel;
-
-    //提示信息
+    /** 地形 */
+    private final Ground ground;
+    /** 蛇 */
+    private final Snake snake;
+    /** 食物 */
+    private final Food food;
+    /** 显示 */
+    private final GamePanel gamePanel;
+    /** 提示信息 */
     private JLabel gameInfoLabel;
-
-    //游戏状态
+    /** 游戏状态 */
     private boolean playing;
-
-    //游戏地图
+    /** 游戏地图 */
     private int map;
-
-    //游戏分数
+    /** 游戏分数 */
     private int score;
-
-    //通关标记
+    /** 通关标记 */
     private boolean success;
+    /** 目标分数 */
+    private int target = OverUtil.target;
+    /** 游戏模式 */
+    private int gameMode = OverUtil.gameMode;
 
-    //目标分数
-    private int target;
+    /** 是否需要增加目标分数 */
+    private boolean skip = true;
 
-    //控制器监听器
-    private Set<GameListener> listeners = new HashSet<GameListener>();
-
-    /**
-     * 接受Snake,Food,Ground对象的构造器
-     *
-     * @param snake
-     * @param food
-     * @param ground
-     * @param gamePanel
-     */
-    public Controller(Snake snake, Food food, Ground ground, GamePanel gamePanel) {
-        this.snake = snake;
-        this.food = food;
-        this.ground = ground;
-        this.gamePanel = gamePanel;
-        /* 先丢一个食物 */
-        if (ground != null && food != null)
-            food.setLocation(ground.getFreePoint());
-        /* 注册监听器 */
-        this.snake.addSnakeListener(this);
-    }
-
-    /**
-     * 接受Snake,Food,Ground对象的构造器<br>
-     * 多接受一个显示提示信息的JLabel
-     *
-     * @param snake
-     * @param food
-     * @param ground
-     * @param gameInfoLabel
-     */
-    public Controller(Snake snake, Food food, Ground ground,
-                      GamePanel gamePanel, JLabel gameInfoLabel) {
-
-        this(snake, food, ground, gamePanel);
-        this.setGameInfoLabel(gameInfoLabel);//游戏提示信息
-
-        if (gameInfoLabel != null)
-            gameInfoLabel.setText(getNewInfo());
-    }
+    /** 控制器监听器 */
+    private Set<GameListener> listeners = new HashSet<>();
 
     /**
      * 处理按键事件<br>
@@ -108,12 +66,13 @@ public class Controller extends KeyAdapter implements SnakeListener {
      * Q/PAGE_DOWN:减慢蛇移速<br>
      * R:重新开始游戏<br>
      */
-    public void keyPressed(KeyEvent event) {
-        if (event.getKeyCode() != KeyEvent.VK_R && !playing) {
+    @Override
+    public void keyPressed(KeyEvent event){
+        if(event.getKeyCode() != KeyEvent.VK_R && !playing){
             return;
         }
         /* 根据按键不同，让蛇改变不同方向 */
-        switch (event.getKeyCode()) {
+        switch (event.getKeyCode()){
             /* 向上移动——W/up */
             case KeyEvent.VK_W:
             case KeyEvent.VK_UP:
@@ -142,11 +101,13 @@ public class Controller extends KeyAdapter implements SnakeListener {
             case KeyEvent.VK_SPACE:
                 //游戏暂停
                 snake.changePause();
-                for (GameListener l : listeners)
-                    if (snake.isPause())
+                for (GameListener l : listeners) {
+                    if (snake.isPause()) {
                         l.gamePause();
-                    else
+                    } else {
                         l.gameContinue();
+                    }
+                }
                 break;
             /* E/PAGE_UP 加速 */
             case KeyEvent.VK_PAGE_UP:
@@ -162,21 +123,23 @@ public class Controller extends KeyAdapter implements SnakeListener {
                 break;
             /* R 重新开始游戏 */
             case KeyEvent.VK_R:
-                if (!isPlaying()) {
+                if(!isPlaying()){
                     newGame();
                     //重丢一个食物
                     food.setLocation(ground.getFreePoint());
                     pauseGame();
                 }
                 break;
+            default:
+                break;
         }
 
         /* 重新显示 */
-        if (gamePanel != null) {
+        if(gamePanel != null){
             gamePanel.redisplay(ground, snake, food);
         }
         /* 更新画面提示 */
-        if (gameInfoLabel != null) {
+        if(gameInfoLabel != null){
             gameInfoLabel.setText(getNewInfo());
         }
     }
@@ -187,73 +150,128 @@ public class Controller extends KeyAdapter implements SnakeListener {
     @Override
     public void snakeMoved() {
         /* 判断是否吃到食物 */
-        if (food != null && food.isSnakeEatFood(snake)) {
+        if(food != null && food.isSnakeEatFood(snake)){
             /* 蛇吃到食物时，增加身体，再重丢一个食物 */
             snake.eatFood();
             food.setLocation(ground == null ? food.getNew() : ground.getFreePoint());
-        } else if (ground != null && ground.isSnakeEatRock(snake)) {
+        }else if(ground != null && ground.isSnakeEatRock(snake)){
             /* 如果吃到的是石头，就结束游戏 */
             stopGame();
         }
         /* 如果吃到自己，就结束游戏 */
-        if (snake.isEatBody()) {
+        if(snake.isEatBody()){
             stopGame();
         }
-        if (gamePanel != null) {//重绘
+        //重绘
+        if(gamePanel != null){
             gamePanel.redisplay(ground, snake, food);
         }
         /* 更新画面提示 */
-        if (gameInfoLabel != null) {
+        if(gameInfoLabel != null){
             gameInfoLabel.setText(getNewInfo());
         }
+    }
+
+    /**
+     * 接受Snake,Food,Ground对象的构造器
+     */
+    public Controller(Snake snake, Food food, Ground ground, GamePanel gamePanel) {
+        this.snake = snake;
+        this.food = food;
+        this.ground = ground;
+        this.gamePanel = gamePanel;
+        /* 先丢一个食物 */
+        if (ground != null && food != null) {
+            food.setLocation(ground.getFreePoint());
+        }
+        /* 注册监听器 */
+        this.snake.addSnakeListener(this);
+    }
+
+    /**
+     * 接受Snake,Food,Ground对象的构造器<br>
+     * 多接受一个显示提示信息的JLabel
+     *
+     */
+    public Controller(Snake snake, Food food, Ground ground,
+                      GamePanel gamePanel, JLabel gameInfoLabel) {
+
+        this(snake, food, ground, gamePanel);
+        //游戏提示信息
+        this.setGameInfoLabel(gameInfoLabel);
+
+        gameInfoLabel.setText(getNewInfo());
     }
 
     /**
      * 开始一个新游戏
      */
     public void newGame() {
-        if (ground != null) {
-            switch (map) {
+        if(ground != null){
+            switch (map){
                 case 2:
-                    ground.Clear();//清空石头
-                    ground.CreateRocks_1();//重绘石头
-                    target = 13;
-                    food.setLocation(ground.getFreePoint());//重丢一个食物
+                    //清空石头
+                    ground.Clear();
+                    //重绘石头
+                    ground.CreateRocks_1();
+                    //如果游戏模式是闯关(gameMode=0)，则修改通关分数
+                    if(gameMode==0&&skip){
+                        target = target + 3;
+                    }
+                    food.setLocation(ground.getFreePoint());
+                    skip = true;
                     break;
                 case 3:
-                    ground.Clear();//清空石头
-                    ground.CreateRocks_2();//重绘石头
-                    target = 15;
-                    food.setLocation(ground.getFreePoint());//重丢一个食物
+                    ground.Clear();
+                    ground.CreateRocks_2();
+                    if(gameMode==0&&skip) {
+                        target = target + 3;
+                    }
+                    food.setLocation(ground.getFreePoint());
+                    skip = true;
                     break;
                 case 4:
-                    ground.Clear();//清空石头
-                    ground.CreateRocks_3();//重绘石头
-                    target = 17;
-                    food.setLocation(ground.getFreePoint());//重丢一个食物
+                    ground.Clear();
+                    ground.CreateRocks_3();
+                    if(gameMode==0&&skip) {
+                        target = target + 3;
+                    }
+                    food.setLocation(ground.getFreePoint());
+                    skip = true;
                     break;
                 case 5:
                     ground.Clear();
                     ground.CreateRocks_4();
-                    target = 20;
-                    food.setLocation(ground.getFreePoint());//重丢一个食物
-                    ground.DeleteRocks_spawnpoint();//出生点保护
+                    if(gameMode==0&&skip) {
+                        target = target + 3;
+                    }
+                    //重丢一个食物
+                    food.setLocation(ground.getFreePoint());
+                    //出生点保护
+                    ground.DeleteRocks_spawnpoint();
+                    skip = true;
                     break;
                 default:
                     ground.init();
                     target = 10;
-                    food.setLocation(ground.getFreePoint());//重丢一个食物
-                    ground.DeleteRocks_spawnpoint();//出生点保护
+                    //重丢一个食物
+                    food.setLocation(ground.getFreePoint());
+                    //出生点保护
+                    ground.DeleteRocks_spawnpoint();
+                    skip = true;
                     break;
             }
         }
-        playing = true;//游玩状态开启
-        snake.resetNew();//重置新游戏
-        success = false;
-        score = 0;//重置分数
-        for (GameListener listener : listeners) {
-            listener.gameStart();
+        //游玩状态开启
+        playing = true;
+        //重置新游戏
+        snake.resetNew();
+        success=false;
+        //重置分数
+        score = 0;
+        for(GameListener listener : listeners){
             listener.changeScore();
+            listener.gameStart();
         }
     }
 
@@ -262,10 +280,13 @@ public class Controller extends KeyAdapter implements SnakeListener {
      */
     public void stopGame() {
         if (playing) {
-            playing = false;//游玩状态结束
-            snake.dead();//让蛇死亡
-            for (GameListener listener : listeners) {
-                listener.gameOver();//循环监听，进行游戏结束事件
+            //游玩状态结束
+            playing = false;
+            //让蛇死亡
+            snake.dead();
+            for (GameListener listener : listeners){
+                //循环监听，进行游戏结束事件
+                listener.gameOver();
             }
         }
     }
@@ -275,8 +296,9 @@ public class Controller extends KeyAdapter implements SnakeListener {
      */
     public void pauseGame() {
         snake.setPause(true);
-        for (GameListener listener : listeners)
+        for (GameListener listener : listeners) {
             listener.gamePause();
+        }
     }
 
     /**
@@ -284,20 +306,21 @@ public class Controller extends KeyAdapter implements SnakeListener {
      */
     public void continueGame() {
         snake.setPause(false);
-        for (GameListener listener : listeners)
+        for (GameListener listener : listeners) {
             listener.gameContinue();
+        }
     }
 
     /**
      * 得到最新提示信息
-     *
      * @return 蛇的最新信息
      */
     public String getNewInfo() {
-        if (!snake.isLive()) {
-            return " ";// 提示：按 R 开始新游戏
-        } else {
-            return new StringBuffer().append("提示：").append("速度 ").append(1000 / snake.getSpeed()) + "格/每秒";
+        if(!snake.isLive()){
+            // 提示：按 R 开始新游戏
+            return " ";
+        }else {
+            return "提示：" + "速度 " + 1000 / snake.getSpeed() + "格/每秒";
         }
     }
 
@@ -305,23 +328,13 @@ public class Controller extends KeyAdapter implements SnakeListener {
      * 添加监听器
      */
     public synchronized void addGameListener(GameListener l) {
-        if (l != null)
+        if (l != null) {
             this.listeners.add(l);
-    }
-
-    /**
-     * 移除监听器
-     *
-     * @param l
-     */
-    public synchronized void removeGameListener(GameListener l) {
-        if (l != null)
-            this.listeners.remove(l);
+        }
     }
 
     /**
      * 游戏进行状态
-     *
      * @return playing值
      */
     public boolean isPlaying() {
@@ -330,9 +343,9 @@ public class Controller extends KeyAdapter implements SnakeListener {
 
     /**
      * 游戏暂停状态
+     * @return boolean
      */
     public boolean isPausingGame() {
-        // TODO Auto-generated method stub
         return snake.isPause();
     }
 
@@ -342,17 +355,17 @@ public class Controller extends KeyAdapter implements SnakeListener {
      */
     @Override
     public void snakeEatFood() {
-        if (score != target - 1) {
+        if(score!=target-1||gameMode==1){
             score++;
-            for (GameListener l : listeners) {
+            for(GameListener l: listeners){
                 l.changeScore();
             }
-        } else {
+        }else {
             score++;
-            for (GameListener l : listeners) {
+            for(GameListener l: listeners){
                 l.changeScore();
             }
-            if (map != 5) {
+            if(map != 5){
                 map++;
             }
             success = true;
@@ -363,8 +376,7 @@ public class Controller extends KeyAdapter implements SnakeListener {
     /**
      * 默认的get方法<br>
      * 得到蛇的引用
-     *
-     * @return
+     * @return snake
      */
     public Snake getSnake() {
         return this.snake;
@@ -373,8 +385,7 @@ public class Controller extends KeyAdapter implements SnakeListener {
     /**
      * 默认的get方法<br>
      * 得到食物的引用
-     *
-     * @return
+     * @return food
      */
     public Food getFood() {
         return this.food;
@@ -383,8 +394,7 @@ public class Controller extends KeyAdapter implements SnakeListener {
     /**
      * 默认的get方法<br>
      * 得到地形的引用
-     *
-     * @return
+     * @return ground
      */
     public Ground getGround() {
         return this.ground;
@@ -393,28 +403,16 @@ public class Controller extends KeyAdapter implements SnakeListener {
     /**
      * 默认的get方法<br>
      * 得到画板的引用
-     *
-     * @return
+     * @return gamePanel
      */
     public GamePanel getGamePanel() {
         return gamePanel;
     }
 
     /**
-     * 默认的set方法<br>
-     * 设置GamePanel
-     *
-     * @param gamePanel
-     */
-    public void setGamePanel(GamePanel gamePanel) {
-        this.gamePanel = gamePanel;
-    }
-
-    /**
      * 默认的get方法<br>
      * 得到游戏提示信息的引用
-     *
-     * @return
+     * @return gameInfoLabel
      */
     public JLabel getGameInfoLabel() {
         return gameInfoLabel;
@@ -422,8 +420,6 @@ public class Controller extends KeyAdapter implements SnakeListener {
 
     /**
      * 设置游戏提示信息
-     *
-     * @param gameInfoLabel
      */
     public void setGameInfoLabel(JLabel gameInfoLabel) {
         this.gameInfoLabel = gameInfoLabel;
@@ -432,18 +428,16 @@ public class Controller extends KeyAdapter implements SnakeListener {
         gameInfoLabel.setText(this.getNewInfo());
     }
 
-    public int getMap() {
-        return map;
-    }
-
     /**
      * 默认的set方法<br>
      * 设置地图
-     *
-     * @param
      */
     public void setMap(int map) {
         this.map = map;
+    }
+
+    public int getMap() {
+        return map;
     }
 
     public int getScore() {
@@ -456,5 +450,17 @@ public class Controller extends KeyAdapter implements SnakeListener {
 
     public boolean isSuccess() {
         return success;
+    }
+
+    public void setSkip(boolean skip) {
+        this.skip = skip;
+    }
+
+    public void setGameMode(int gameMode) {
+        this.gameMode = gameMode;
+    }
+
+    public int getGameMode() {
+        return gameMode;
     }
 }

@@ -4,8 +4,9 @@ import cn.liuhangxiao.snake_v2.Utils.OverUtil;
 
 import javax.swing.*;
 import javax.swing.border.EtchedBorder;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import java.awt.*;
-import java.util.Objects;
 
 /**
  * 游戏设置界面
@@ -14,24 +15,27 @@ public class OptionPanel extends JPanel {
     /*
      *定义静态变量
      */
-//    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
+    //logo图标
+    private ImageIcon logoIcon = new ImageIcon(OptionPanel.class
+            .getResource("/img/school_logo.png"));
+    //初始化JFrame
+    private JFrame frame;
     //按钮——开始游戏
     private final JButton newGameButton = new JButton();
     //按钮——结束游戏
     private final JButton stopGameButton = new JButton();
     //按钮——暂停游戏
     private final JButton pauseButton = new JButton();
+
     //文本框——游戏状态
     private final JTextField gameStartText = new JTextField();
+
     //文本框——分数
     private final JTextField gameScoreText = new JTextField();
+
     //文本框——目标
     private final JTextField gameScoreEndText = new JTextField();
-    //logo图标
-    private ImageIcon logoIcon = new ImageIcon(Objects.requireNonNull(OptionPanel.class
-            .getResource("/img/school_logo.png")));
-    //初始化JFrame
-    private JFrame frame;
 
     /**
      * 创建画板
@@ -39,7 +43,7 @@ public class OptionPanel extends JPanel {
     public OptionPanel() {
         super();
         //设置画板大小
-        setSize(450, 185);
+        setSize(450,185);
         //配置布局管理器，默认为null
         setLayout(null);
         //创建渐进式边框，边框类别为渐进式
@@ -48,7 +52,7 @@ public class OptionPanel extends JPanel {
         setFocusable(false);
 
         /*游戏状态的文本框*/
-        gameStartText.setBounds(10, 10, 286, 80);
+        gameStartText.setBounds(10,10,286,80);
         gameStartText.setHorizontalAlignment(JTextField.CENTER);
         gameStartText.setFont(new Font("黑体", Font.PLAIN, 40));
         gameStartText.setBackground(Color.black);
@@ -57,12 +61,12 @@ public class OptionPanel extends JPanel {
 
         JLabel ScoreText = new JLabel();
         ScoreText.setFont(new Font("楷体", Font.PLAIN, 14));
-        ScoreText.setBounds(10, 70, 134, 60);
+        ScoreText.setBounds(10,70,134,60);
         ScoreText.setText("当前分数:");
         add(ScoreText);
 
         /*游戏分数的文本框*/
-        gameScoreText.setBounds(10, 110, 138, 60);
+        gameScoreText.setBounds(10,110,138,60);
         gameScoreText.setHorizontalAlignment(JTextField.CENTER);
         gameScoreText.setFont(new Font("黑体", Font.PLAIN, 40));
         gameScoreText.setBackground(Color.black);
@@ -72,12 +76,12 @@ public class OptionPanel extends JPanel {
 
         JLabel scoreEndText = new JLabel();
         scoreEndText.setFont(new Font("楷体", Font.PLAIN, 14));
-        scoreEndText.setBounds(158, 70, 138, 60);
+        scoreEndText.setBounds(158,70,138,60);
         scoreEndText.setText("目标分数:");
         add(scoreEndText);
 
         /*游戏目标分数的文本框*/
-        gameScoreEndText.setBounds(158, 110, 138, 60);
+        gameScoreEndText.setBounds(158,110,138,60);
         gameScoreEndText.setHorizontalAlignment(JTextField.CENTER);
         gameScoreEndText.setFont(new Font("黑体", Font.PLAIN, 40));
         gameScoreEndText.setBackground(Color.black);
@@ -89,7 +93,7 @@ public class OptionPanel extends JPanel {
         final JSeparator separator_2 = new JSeparator();
         //设置分割线方向
         separator_2.setOrientation(SwingConstants.VERTICAL);
-        separator_2.setBounds(302, 10, 140, 165);
+        separator_2.setBounds(302,10,140,165);
         add(separator_2);
 
         /*
@@ -97,7 +101,7 @@ public class OptionPanel extends JPanel {
          * 包括开始、结束、暂停游戏
          */
         final JSeparator separator_start = new JSeparator();
-        separator_start.setBounds(10, 70, 125, 95);
+        separator_start.setBounds(10,70,125,95);
         separator_2.add(separator_start);
 
         /*结束游戏按钮设置*/
@@ -123,29 +127,30 @@ public class OptionPanel extends JPanel {
 
         /*设置游戏LOGO*/
         final JLabel label_logo = new JLabel(logoIcon);
-        label_logo.setBounds(10, 0, 125, 70);
+        label_logo.setBounds(10,0,125,70);
         separator_2.add(label_logo);
     }
 
     /**
      * 开始按钮<br>
      * 默认的get方法
+     * @return
      */
     public JButton getNewGameButton() {
         return newGameButton;
     }
-
     /**
      * 结束按钮<br>
      * 默认的get方法
+     * @return
      */
     public JButton getStopGameButton() {
         return stopGameButton;
     }
-
     /**
      * 暂停按钮<br>
      * 默认的get方法
+     * @return
      */
     public JButton getPauseButton() {
         return pauseButton;
@@ -154,6 +159,7 @@ public class OptionPanel extends JPanel {
     /**
      * 游戏状态<br>
      * 默认的get方法
+     * @return
      */
     public JTextField getGameStartText() {
         return gameStartText;
@@ -162,6 +168,7 @@ public class OptionPanel extends JPanel {
     /**
      * 游戏分数<br>
      * 默认的get方法
+     * @return
      */
     public JTextField getGameScoreText() {
         return gameScoreText;
@@ -170,6 +177,7 @@ public class OptionPanel extends JPanel {
     /**
      * 目标分数<br>
      * 默认的get方法
+     * @return
      */
     public JTextField getGameScoreEndText() {
         return gameScoreEndText;

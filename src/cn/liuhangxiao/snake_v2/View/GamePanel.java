@@ -14,13 +14,13 @@ import java.awt.*;
  */
 public class GamePanel extends JPanel {
 
-    //默认背景色
-    public static final Color Default_background_color = new Color(0xcfcfcf);
     private static final long serialVersionUID = 1L;
     //缓存图
     private Image over_image;
     //画笔
     private Graphics over_graphics;
+    //默认背景色
+    public static final Color Default_background_color = new Color(0xcfcfcf);
     //背景颜色
     private Color backgroundColor = Default_background_color;
 
@@ -38,28 +38,27 @@ public class GamePanel extends JPanel {
 
     /**
      * 重新显示 Ground, shape
-     *
      * @param ground
      * @param snake
      * @param food
      */
     public synchronized void redisplay(Ground ground, Snake snake, Food food) {
         /* 重新显示 */
-        if (over_graphics == null) {
+        if(over_graphics == null){
             over_image = createImage(getSize().width, getSize().height);
-            if (over_image != null) {
+            if(over_image != null){
                 over_graphics = over_image.getGraphics();
             }
         }
-        if (over_graphics != null) {
+        if(over_graphics != null){
             over_graphics.setColor(backgroundColor);
-            over_graphics.fillRect(0, 0, OverUtil.view_rows * OverUtil.block_width, OverUtil.view_cols * OverUtil.block_height);
-            if (ground != null) {//判断是否有石头，无则绘制石头
+            over_graphics.fillRect(0,0, OverUtil.view_rows * OverUtil.block_width,OverUtil.view_cols * OverUtil.block_height);
+            if(ground != null){//判断是否有石头，无则绘制石头
                 ground.drawRock(over_graphics);
             }
             //绘制蛇
             snake.drawSnake(over_graphics);
-            if (food != null) {
+            if(food != null){
                 food.drawFood(over_graphics);
             }
             //绘制画板
@@ -67,14 +66,13 @@ public class GamePanel extends JPanel {
         }
     }
 
-    public void paint(Graphics graphics) {//双缓存绘制图片
-        graphics.drawImage(over_image, 0, 0, this);
+    public void paint(Graphics graphics){//双缓存绘制图片
+        graphics.drawImage(over_image,0,0,this);
     }
 
     /**
      * 默认的get方法<br>
      * 得到当前的背景颜色
-     *
      * @return
      */
     public Color getBackgroundColor() {
@@ -84,7 +82,6 @@ public class GamePanel extends JPanel {
     /**
      * 默认的set方法<br>
      * 设置当前的背景颜色
-     *
      * @param backgroundColor
      */
     public void setBackgroundColor(Color backgroundColor) {
